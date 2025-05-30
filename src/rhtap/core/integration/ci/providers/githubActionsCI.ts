@@ -1,9 +1,11 @@
 import { KubeClient } from '../../../../../../src/api/ocp/kubeClient';
+import { GithubActionsClient } from '../../../../../api/ci/githubActionsClient';
 import { PullRequest } from '../../git/models';
 import { BaseCI } from '../baseCI';
 import { CIType, EventType, Pipeline, PipelineStatus } from '../ciInterface';
 
 export class GitHubActionsCI extends BaseCI {
+<<<<<<< Updated upstream
   public getPipelineLogs(pipeline: Pipeline): Promise<string> {
     throw new Error('Method not implemented.');
   }
@@ -13,6 +15,19 @@ export class GitHubActionsCI extends BaseCI {
   private component: string;
 
   public override getPipeline(
+=======
+  private githubActionsClient: GithubActionsClient;
+  private component: string;
+
+  constructor(component: string, kubeClient: KubeClient, token: string) {
+    super(CIType.GITHUB_ACTIONS, kubeClient);
+    this.githubActionsClient = new GithubActionsClient(token);
+    this.component = component;
+  }
+
+  public getPipeline(
+    owner: string,
+>>>>>>> Stashed changes
     pullRequest: PullRequest,
     pipelineStatus: PipelineStatus,
     eventType?: EventType
@@ -30,6 +45,9 @@ export class GitHubActionsCI extends BaseCI {
       );
       eventType = EventType.PULL_REQUEST;
     }
+
+    this.githubActionsClient.getWorkflowRuns(pullRequest.repository)
+
     throw new Error('Method not implemented.');
   }
   protected override checkPipelineStatus(pipeline: Pipeline): Promise<PipelineStatus> {
@@ -43,10 +61,6 @@ export class GitHubActionsCI extends BaseCI {
       throw new Error('Component is not defined');
     }
     throw new Error('Method not implemented.');
-  }
-  constructor(component: string, kubeClient: KubeClient) {
-    super(CIType.GITHUB_ACTIONS, kubeClient);
-    this.component = component;
   }
 
   public override async getWebhookUrl(): Promise<string> {

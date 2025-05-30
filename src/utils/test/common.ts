@@ -48,8 +48,17 @@ export async function promoteToEnvironmentWithPR(
     console.log(`Created promotion PR #${pr.pullNumber} in ${git.getGitOpsRepoName()} repository`);
 
     // Step 3: Wait for pipeline triggered by the promotion PR to complete
+<<<<<<< Updated upstream
     // return ci.getPipeline(pullRequest, PipelineStatus.RUNNING, eventType);
     const pipeline = await ci.getPipeline(pr, PipelineStatus.RUNNING, EventType.PULL_REQUEST);
+=======
+    const pipeline = await PipelineHandler.getPipelineFromPullRequest(
+      git.getRepoOwner,
+      pr,
+      ci,
+      EventType.PULL_REQUEST
+    );
+>>>>>>> Stashed changes
     if (!pipeline) {
       throw new Error('No pipeline was triggered by the promotion PR');
     }
@@ -171,7 +180,41 @@ export async function handleSourceRepoCodeChanges(git: Git, ci: CI): Promise<voi
   const gitType = git.getGitType();
 
   try {
+<<<<<<< Updated upstream
       console.log(`Creating a pull request on source repo on ${gitType} repository ...`);
+=======
+    // Step 1: Make changes to the source repo based on CI type
+    if (ciType === CIType.JENKINS) {//TODO: this if block should be removed
+      // For Jenkins: Commit directly to the main branch
+      console.log('Jenkins CI detected, committing changes directly to main branch...');
+      const commitSha = await git.createSampleCommitOnSourceRepo();
+      console.log(`Created commit with SHA: ${commitSha}`);
+
+      // Create a pull request object for pipeline reference only
+      // Note: This is not an actual PR, just a reference object with the commit SHA
+      const commitRef = new PullRequest(0, commitSha, git.getSourceRepoName());
+
+      // Get the pipeline triggered by the commit
+      console.log(`Getting Jenkins pipeline for commit: ${commitSha}`);
+      const pipeline = await PipelineHandler.getPipelineFromPullRequest(
+        commitRef,
+        ci,
+        EventType.PULL_REQUEST
+      );
+      expect(pipeline).not.toBeNull();
+
+      // console.log(`Waiting for Jenkins pipeline ${pipeline.getDisplayName()} to finish...`);
+      if (!pipeline) {
+        console.warn('No Jenkins pipeline was triggered by the commit');
+        return;
+      }
+      const pipelineStatus = await ci.waitForPipelineToFinish(pipeline);
+      console.log(`Jenkins pipeline completed with status: ${pipelineStatus}`);
+      expect(pipelineStatus).toBe('success');
+    } else if (ciType === CIType.TEKTON) {
+      // For Tekton: Follow PR-based workflow
+      console.log('Tekton CI detected, creating a pull request on source repo...');
+>>>>>>> Stashed changes
       // Step 1: Create a PR which triggers a pipeline
       const pullRequest = await git.createSamplePullRequestOnSourceRepo();
       console.log(`Created PR ${pullRequest.url} with SHA: ${pullRequest.sha}`);

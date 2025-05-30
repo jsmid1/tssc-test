@@ -142,10 +142,10 @@ export class Pipeline {
   }
 
   /**
-   * Factory method to create a GitLab CI pipeline
+   * Factory method to create a Github pipeline
    */
-  public static createGitLabPipeline(
-    pipelineId: number,
+  public static createGithubPipeline(
+    name: string,
     status: PipelineStatus,
     repositoryName: string,
     logs: string = '',
@@ -153,17 +153,14 @@ export class Pipeline {
     url?: string,
     sha?: string
   ): Pipeline {
-    // For GitLab, use pipeline ID as the unique identifier
-    const id = pipelineId.toString();
-
     return new Pipeline(
-      id,
-      CIType.GITLABCI,
+      name,
+      CIType.GITHUB_ACTIONS,
       repositoryName,
       status,
-      `Pipeline #${pipelineId}`, // Name for GitLab pipeline
-      pipelineId, // Use pipeline ID as build number
-      undefined, // No job name for GitLab
+      name,
+      undefined, // No build number for Tekton
+      undefined, // No job name for Tekton
       url,
       logs,
       results,
