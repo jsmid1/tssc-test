@@ -14,6 +14,9 @@ const testPlanData = JSON.parse(readFileSync(testPlanPath, 'utf-8'));
 const templates = testPlanData.templates || [];
 const tssc = testPlanData.tssc || {};
 
+// Authentication file path
+const authFile = path.join(__dirname, 'playwright/.auth/user.json');
+
 // Create e2e projects from testplan.json
 const e2eProjects = templates.map(template => ({
   name: `template-${template}`,
@@ -31,7 +34,7 @@ const e2eProjects = templates.map(template => ({
   },
 }));
 
-// Create ui projects for UI tests from exported test items
+// Create UI projects for UI tests from exported test items
 let uiProjects: any[] = [];
 const exportedTestItemsPath = './tmp/test-items.json';
 if (existsSync(exportedTestItemsPath)) {
@@ -43,7 +46,11 @@ if (existsSync(exportedTestItemsPath)) {
         testMatch: '**/ui.test.ts',
         use: {
           testItem: TestItem.fromJSON(itemData),
+          // State file for authentication
+          storageState: authFile,
         },
+        // UI tests depend on auth-setup project
+        dependencies: ['auth-setup'],
       }));
     }
   } catch (error) {
@@ -51,7 +58,12 @@ if (existsSync(exportedTestItemsPath)) {
   }
 }
 
-const allProjects = [...e2eProjects, ...uiProjects];
+const authSetupProject = {
+  name: 'auth-setup',
+  testMatch: '**/auth.setup.ts',
+};
+
+const allProjects = [authSetupProject, ...e2eProjects, ...uiProjects];
 
 export default defineConfig({
   testDir: './tests',
