@@ -71,4 +71,13 @@ export class UiComponent {
   public getGit(): GitPlugin {
     return this.git;
   }
+
+  /**
+   * Get the component URL for UI testing
+   * 
+   * @returns string - Component URL
+   */
+  getComponentUrl(): string {
+    return `${this.component.getDeveloperHub().getUrl()}/catalog/default/component/${this.component.getName()}`;
+  }
 }

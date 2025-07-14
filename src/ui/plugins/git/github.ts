@@ -32,6 +32,8 @@ export class GithubUiPlugin implements GitPlugin {
      * @param page - Playwright Page object for UI interactions
      */
     async login(page: Page): Promise<void> {
+        console.log('🔐 Starting GitHub authentication...');
+        
         let button = page.getByRole('button', { name: DHLoginPO.signInButtonName });
         await expect(button).toBeVisible({ timeout: 15000 })
 
@@ -40,14 +42,18 @@ export class GithubUiPlugin implements GitPlugin {
         const authorizeAppPage = await authorizeAppPagePromise;
         await authorizeAppPage.bringToFront();
         await authorizeAppPage.waitForLoadState();
+        
+        console.log('🔑 Filling GitHub credentials...');
         await authorizeAppPage.locator(GhLoginPO.githubLoginField).fill(loadFromEnv("GH_USERNAME"));
         await authorizeAppPage.locator(GhLoginPO.githubPasswordField).fill(loadFromEnv('GH_PASSWORD'));
         await authorizeAppPage.locator(GhLoginPO.githubSignInButton).click();
         await authorizeAppPage.waitForLoadState();
 
+        console.log('🔢 Generating 2FA token...');
         const token = await this.getGitHub2FAOTP();
         await authorizeAppPage.locator(GhLoginPO.github2FAField).fill(token);
-
+        
+        console.log('✅ GitHub authentication completed');
     }
 
     /**
