@@ -35,6 +35,10 @@ Thumbs.db
 /testplan.json
 /kubeconfig
 /package-lock.json
+tmp
 
 # Tekton
 .tekton/
+
+#Playwright
+playwright/.auth/
