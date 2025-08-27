@@ -157,6 +157,11 @@ test.describe('RHTAP UI Test Suite', () => {
       await page.goto(`${component.getComponentUrl()}/dependencies`, {
         timeout: 20000,
       });
+
+      await test.step('Hide Quick start side panel', async () => {
+        await hideQuickStartIfVisible(page);
+      }, { timeout: 20000 });
+
       await waitForPageLoad(page, component.getCoreComponent().getName());
 
       await test.step('Check all boxes', async () => {
